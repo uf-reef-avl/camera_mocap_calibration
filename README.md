@@ -127,18 +127,18 @@ Only RGB intrinsic calibration needs to be performed for extrinsic calibration.
 
 Intrinsic calibration board:
 
-![intrinsic calibration board](calibrate_mocap_and_camera/doc/intrinsic_calibration_board.png "intrinsic calibration board")
+![intrinsic calibration board](./doc/intrinsic_calibration_board.png "intrinsic calibration board")
 
 
 1. Rotate and move the board slowly in the camera's field of view until the progress bars for x, y, skew, and size are green.
 
-    ![intrinsic calibration](calibrate_mocap_and_camera/doc/intrinsic_calibration.png "intrinsic calibration")
+    ![intrinsic calibration](./doc/intrinsic_calibration.png "intrinsic calibration")
 
 2. Once the bars are filled, the option to generate the intrinsic calibration parameters becomes available. Collecting more sample will improve the accuracy of the intrisinc calibration but oversampling will increase the amount of time for intrinsic calibration computation (250+ samples = 1+ hours).  As the extrinsic calibration depends on the rgb intrinsic calibration, it can also improve the extrinsic results.
 
 3. Click **Calibrate**, and wait for the process to complete. The output terminal should show the intrinsic parameters and the **Save** button should become available.
 
-    ![end of intrinsic calibration](calibrate_mocap_and_camera/doc/end_of_intrinsic_calibration.png "end of intrinsic calibration")
+    ![end of intrinsic calibration](./doc/end_of_intrinsic_calibration.png "end of intrinsic calibration")
 
 4. Click **Save**, a calibration package (.tar.gz) should be created that contains the images used in calibration as well as the intrinsic parameters in the form of a .yaml file.
 5. Click **Commit**, this will save a .yaml file with the intrinsic camera parameters in `~/.ros/camera_info` by default. Check if this file has been correctly generated.
@@ -157,37 +157,37 @@ Extrinsic calibration refers to the estimation of the coordinate system transfor
 
     Configuration of the quad on the ground and in Motive:
 
-      ![quad calibration initialisation](calibrate_mocap_and_camera/doc/quad_calibration_initialisation.png "quad calibration initialisation")
+      ![quad calibration initialisation](./doc/quad_calibration_initialisation.png "quad calibration initialisation")
 
     If used, configuration of the little board on the gound and in Motive:
 
-      ![little board calibration initialisation](calibrate_mocap_and_camera/doc/little_board_calibration_initialisation.png "little board calibration initialisation")
+      ![little board calibration initialisation](./doc/little_board_calibration_initialisation.png "little board calibration initialisation")
 
     If used, configuration of the big board on the gound and in Motive:
 
-      ![big board calibration initialisation](calibrate_mocap_and_camera/doc/big_board_calibration_initialisation.png "big board calibration initialisation")
+      ![big board calibration initialisation](./doc/big_board_calibration_initialisation.png "big board calibration initialisation")
 
     If you want to reset the rigidbody orientation because yaw, pitch and roll aren't set to 0 degrees in the rigidbody's panel (Real Time Info tab):
 
     -Select the rigidbody and click on the edit button
 
-      ![before orientation reinitialisation](calibrate_mocap_and_camera/doc/before_orientation_reinitialisation.png "before orientation reinitialisation")
+      ![before orientation reinitialisation](./doc/before_orientation_reinitialisation.png "before orientation reinitialisation")
 
     -Then click on the reset button in the orientation panel. It is also possible to change the position of the rigidbody's centroid in the pivot point panel.
 
-      ![orientation reinitialisation](calibrate_mocap_and_camera/doc/orientation_reinitialisation.png "orientation reinitialisation")
+      ![orientation reinitialisation](./doc/orientation_reinitialisation.png "orientation reinitialisation")
 
     -Finally, yaw, pitch and roll will be set to zero.
 
-      ![after orientation reinitialisation](calibrate_mocap_and_camera/doc/after_orientation_reinitialisation.png "after orientation reinitialisation")
+      ![after orientation reinitialisation](./doc/after_orientation_reinitialisation.png "after orientation reinitialisation")
 
-3. Once the rigidbodies are created and initialized properly, modify the arguments in the launch file **board_moves_w_truth.launch** ("calibrate_mocap_and_camera/launch/extrinsic") to make the calibration work with the current configuration:
+3. Once the rigidbodies are created and initialized properly, modify the arguments in the launch file **board_moves_w_truth.launch** ("./launch/extrinsic") to make the calibration work with the current configuration:
   * `calibration_data_filename` must point to the file where you would like to store the calibration transform results.
   * choose the right driver argument between: `driver_usb_cam`, `driver_cv_camera`, `driver_openni2`, `driver_astra`,`driver_astra_pro`, set it to  **true** according to the camera currently used and set the others ones to **false**.
   * check the path defined by the `camera_info` argument points to the intrinsic .yaml camera parameters in the **~/.ros/camera_info** directory
   * change the `board_config` argument to point to the right board configuration file. Depending on the board chosen, modify also the `marker_size` argument:
-	   * the **pose_calib_00.yml** ("calibrate_mocap_and_camera/data/single") correspond to the little board with `marker_size` = 0.035 meters
-       * the **pose_calib_01.yml** ("calibrate_mocap_and_camera/data/single") correspond to the big board with `marker_size` = 0.2032 meters
+	   * the **pose_calib_00.yml** ("./data/single") correspond to the little board with `marker_size` = 0.035 meters
+       * the **pose_calib_01.yml** ("./data/single") correspond to the big board with `marker_size` = 0.2032 meters
 4. Then run the launch file **board_moves_w_truth.launch** from the package `calibrate_mocap_and_camera`.
 
 ```
@@ -196,7 +196,7 @@ roslaunch calibrate_mocap_and_camera board_moves_w_truth.launch
 <a name="Calibration"/>
 ### Calibration
 
-![boards orientation](calibrate_mocap_and_camera/doc/boards_orientation.png "boards orientation")
+![boards orientation](./doc/boards_orientation.png "boards orientation")
 
 1. Orient the chosen aruco board as shown on the images above in order to face the center of the camera's field of vision.
 
@@ -222,7 +222,7 @@ A Matlab script will be used to plot transform data and determine outliers. If M
           tf_cam_to_rgb_optical_calibration_data = [
     - add the last line:
           ]
-    - Save the file as **calib_transforms.m** and copy it in the post-processing directory ("calibrate_mocap_and_camera/post_processing") where the **calib_analysis.m** file is located
+    - Save the file as **calib_transforms.m** and copy it in the post-processing directory ("./post_processing") where the **calib_analysis.m** file is located
 
 3. Run the **calib_analysis.m** script:
 
@@ -232,7 +232,7 @@ A Matlab script will be used to plot transform data and determine outliers. If M
 
 4. Investigate these plots and identify discontinuities as shown below.
 
-    ![Extrinsic TF Outlier Example](calibrate_mocap_and_camera/doc/Extrinsic_TF_Outlier_Example.png "Extrinsic TF Outlier Example")
+    ![Extrinsic TF Outlier Example](./doc/Extrinsic_TF_Outlier_Example.png "Extrinsic TF Outlier Example")
 
 5. These discontinuities must be removed in order to achieve optimal extrinsic calibration. Run the python script **calibout_running_median_filter.py** (python3 calibout_running_median_filter.py) to remove these discontinuities thanks to a median filter or the script **caliboutlierremoval.py** (python3 caliboutlierremoval.py) to remove them with defined maximum and minimum thresholds. The user can interact with theses scripts through the terminal. In order to perform this, ensure Python3, pip3 and matplotlib are installed :
 
@@ -242,15 +242,15 @@ A Matlab script will be used to plot transform data and determine outliers. If M
 **Notes**
 These python scripts process the result file named **calib_transforms.txt** and located in the home directory. Ensure that your extrinsic result file has this name and is located in the home directory.   
 
-6. The resulting file will be named **calib_transforms_no_outliers.m** and will be located in the home directory. Copy and rename this file as **calib_transforms.m** in the post-processing directory ("calibrate_mocap_and_camera/post_processing"). The old **calib_transforms.m** must be replaced. Then rerun **calib_analysis.m**.
+6. The resulting file will be named **calib_transforms_no_outliers.m** and will be located in the home directory. Copy and rename this file as **calib_transforms.m** in the post-processing directory ("./post_processing"). The old **calib_transforms.m** must be replaced. Then rerun **calib_analysis.m**.
 
-    ![Extrinsic TF Outlier Removed](calibrate_mocap_and_camera/doc/Extrinsic_TF_Outlier_Removed.png "Extrinsic TF Outlier Removed")
+    ![Extrinsic TF Outlier Removed](./doc/Extrinsic_TF_Outlier_Removed.png "Extrinsic TF Outlier Removed")
 
     The discontinuity should now be removed. Repeat this process for all discontinuities.
 
 7. After removing all discontinuities and running **calib_analysis.m** once more, the extrinsic parameters can be found in the script output in the form of a translation vector and rotation matrix (quaternion).
 
-    ![Extrinsic Calib Console](calibrate_mocap_and_camera/doc/Extrinsic_Calib_Console.png "Extrinsic Calib Console")
+    ![Extrinsic Calib Console](./doc/Extrinsic_Calib_Console.png "Extrinsic Calib Console")
 
 
 <a name="Aruco Board Advice"/>
@@ -275,7 +275,7 @@ The aruco board can be created thanks to the tutorial on the website [UNCC Visio
 
 When the **aruco_bc_mInfoType** argument is set to pixel (value = 0), every side's length of an aruco marker is 100 and all the others distance are defined proportionaly to this side's length.  Then the coordinate of each aruco marker's corner can be computed as follow:
 
-![Board Coordinate](calibrate_mocap_and_camera/doc/board_coordinate.png "Board Coordinate")
+![Board Coordinate](./doc/board_coordinate.png "Board Coordinate")
 
 As the yaml file is a dictionary, the order of definition of the aruco markers doesn't really matter but ensure that all the aruco markers have been defined in the yaml file.
 
