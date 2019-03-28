@@ -1,12 +1,11 @@
 <launch>
     <arg name="driver_openni2" value="false"/>
-    <arg name="driver_astra" value="true"/>
 
     <group if="$(arg driver_openni2)">
         <include file="$(find openni2_launch)/launch/openni2.launch"/>
     </group>
 
-    <group if="$(arg driver_astra)">
+    <group unless="$(arg driver_openni2)">
         <include file="$(find astra_launch)/launch/astra_pro.launch"/>
     </group>
 

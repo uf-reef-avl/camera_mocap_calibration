@@ -46,7 +46,7 @@ public:
 
     void initializeSubscribers(ros::NodeHandlePtr nodeptr,
             std::string tf_camera_topic, std::string tf_calib_topic, std::string ar_calib_topic, int timeval = 10) {
-        sub_tf_aruco_calib_pose = nodeptr->subscribe(ar_calib_topic, 1, &CalibrateMocapAndCamera::ar_calib_pose_Callback, this);
+      sub_tf_aruco_calib_pose = nodeptr->subscribe(ar_calib_topic, 1, &CalibrateMocapAndCamera::ar_calib_pose_Callback, this);
     }
     void ar_calib_pose_Callback(const geometry_msgs::TransformStampedConstPtr& ar_calib_pose);
 
