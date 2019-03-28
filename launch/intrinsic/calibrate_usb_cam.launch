@@ -1,0 +1,42 @@
+<launch>
+    <arg name="driver_usb_cam" value="false"/>
+    <arg name="driver_cv_camera" value="true"/>
+    <arg name="show_images" value="false"/>
+    <arg name="run_calibration" value="true"/>
+    <arg name="board_1" value="--size 8x6 --square 0.108"/>
+    <arg name="board_2" value="--size 7x6 --square 0.108"/>
+    <arg name="board_3" value="--size=5x4 --square=0.0245"/>
+    
+    <node type="cameracalibrator.py" pkg="camera_calibration"
+          args="$(arg board_1)"
+          name="calibration_gui" output="screen" if="$(arg run_calibration)">
+        <remap from="/image" to="/cv_camera_node/image_raw" if="$(arg driver_cv_camera)"/>
+        <remap from="/image" to="/usb_cam/image_raw" if="$(arg driver_usb_cam)"/>
+        <remap from="camera" to="usb_cam" if="$(arg driver_usb_cam)"/>
+        <!--<remap from="camera" to="cv_camera" if="$(arg driver_cv_camera)"/>-->
+    </node>  
+
+    <node name="cv_camera_node" pkg="cv_camera" type="cv_camera_node" 
+          output="screen" if="$(arg driver_cv_camera)"/>    
+
+    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" if="$(arg driver_usb_cam)">
+        <param name="video_device" value="/dev/video0" />
+        <param name="image_width" value="640" />
+        <param name="image_height" value="480" />
+        <param name="pixel_format" value="yuyv" />
+        <param name="camera_frame_id" value="usb_cam" />
+        <param name="io_method" value="mmap"/>
+    </node>       
+    <!--
+    <include file="$(find usb_cam)/launch/usb_cam-test.launch">
+  </include>
+    -->
+
+    <node pkg="image_view" type="image_view" name="image_view" output="screen"
+              if="$(arg show_images)">
+        <remap from="image" to="/cv_camera_node/image_raw" if="$(arg driver_cv_camera)"/>
+        <remap from="image" to="/usb_cam/image_raw" if="$(arg driver_usb_cam)"/>
+        <param name="autosize" type="bool" value="true" />
+    </node>
+
+</launch>

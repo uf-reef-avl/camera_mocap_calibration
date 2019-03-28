@@ -1,0 +1,20 @@
+<launch>
+    <arg name="driver_openni2" value="false"/>
+    <arg name="driver_astra" value="true"/>
+
+    <group if="$(arg driver_openni2)">
+        <include file="$(find openni2_launch)/launch/openni2.launch"/>
+    </group>
+
+    <group if="$(arg driver_astra)">
+        <include file="$(find astra_launch)/launch/astra_pro.launch"/>
+    </group>
+
+    <node type="cameracalibrator.py" pkg="camera_calibration"
+          args="--size=8x6 --square=0.0245 --no-service-check"
+          name="calibration_gui" output="screen">
+        <remap from="image" to="/camera/ir/image" />
+        <remap from="camera" to="camera/ir" />
+    </node>  
+	
+</launch>
