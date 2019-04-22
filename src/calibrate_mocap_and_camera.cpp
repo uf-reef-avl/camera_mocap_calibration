@@ -28,16 +28,6 @@
 
 #include <eigen_conversions/eigen_msg.h>
 
-namespace Eigen {
-
-    void toString(std::string name, Eigen::MatrixXf mat) {
-        static std::string sep = "\n----------------------------------------\n";
-        static int StreamPrecision = 4;
-        static Eigen::IOFormat OctaveFmt(StreamPrecision, 0, ", ", ";\n", "", "", "[", "]");
-        std::cout << sep << name << " = " << mat.format(OctaveFmt) << ";" << sep;
-    }
-}
-
 bool validTransform(tf::StampedTransform & transform) {
 	bool result = true;
 	double normTranslation = transform.getOrigin().x() *transform.getOrigin().x() + transform.getOrigin().y() *transform.getOrigin().y() +transform.getOrigin().z() *transform.getOrigin().z() ;
@@ -133,7 +123,21 @@ void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::Transf
                 << calib_rot.getX() << " "
                 << calib_rot.getY() << " "
                 << calib_rot.getZ() << " "
-                << calib_rot.getW() << std::endl;
+                << calib_rot.getW() << " "
+                << cam_marker_pose.getOrigin().x() << " "
+                << cam_marker_pose.getOrigin().y() << " "
+                << cam_marker_pose.getOrigin().z() << " "
+                << cam_marker_pose.getRotation().x() << " "
+                << cam_marker_pose.getRotation().y() << " "
+                << cam_marker_pose.getRotation().z() << " "
+                << cam_marker_pose.getRotation().w() << " "
+                << calib_marker_pose.getOrigin().x() << " "
+                << calib_marker_pose.getOrigin().y() << " "
+                << calib_marker_pose.getOrigin().z() << " "
+                << calib_marker_pose.getRotation().x() << " "
+                << calib_marker_pose.getRotation().y() << " "
+                << calib_marker_pose.getRotation().z() << " "
+                << calib_marker_pose.getRotation().w() <<std::endl;
     }
 }
 
