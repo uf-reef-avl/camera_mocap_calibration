@@ -28,7 +28,7 @@
     <arg name="play_bag" default="true"/>
 
     <group if="$(arg play_bag)">
-        <arg name="bag_path" default="/Verify_Estimates/20190325_001_bag_filtered.bag"/>
+        <arg name="bag_path" default="/home/prashant/Documents/filtered_calib_bag.bag"/>
         <node pkg="rosbag" type="play" name="player" output="screen" args="--clock --pause $(arg bag_path)"/>
     </group>
 
