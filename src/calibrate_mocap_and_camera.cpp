@@ -86,7 +86,7 @@ void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::Transf
             ar_calib_pose->transform.rotation.z, ar_calib_pose->transform.rotation.w).normalize());
     tf::Transform itransform = transform.inverse();
     br.sendTransform(tf::StampedTransform(itransform,
-            ros::Time::now(), "ar_optical_frame", "rgb_optical_pose"));
+        queryTime, "ar_optical_frame", "rgb_optical_pose"));
     try {
         listener.waitForTransform(cam_frame_id_str, "rgb_optical_pose",
                 queryTime, ros::Duration(1));
@@ -97,7 +97,7 @@ void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::Transf
 	if(validTransform(tf_cam_to_rgb_optical_frame))
 		{
 		    br.sendTransform(tf::StampedTransform(tf_cam_to_rgb_optical_frame,
-			    ros::Time::now(), "tf_cam", "calib_rgb_optical_pose"));
+		        queryTime, "tf_cam", "calib_rgb_optical_pose"));
 		}
 
     if (DEBUG) {
