@@ -55,7 +55,7 @@ void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::Transf
         ROS_INFO("Looking up transform from frame '%s' to frame '%s'", map_frame_id_str.c_str(),
                 cam_frame_id_str.c_str());
     }
-    ros::Time queryTime = ros::Time::now();
+    ros::Time queryTime = ar_calib_pose->header.stamp;
     try {
         listener.waitForTransform(map_frame_id_str, cam_frame_id_str,
                 queryTime, ros::Duration(1));
