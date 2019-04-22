@@ -91,13 +91,4 @@
         <param name="logfilename" value = "$(arg calibration_data_filename)"/>        
     </node>
 
-    <node name="tf_calib_to_ar_calib" pkg="tf"
-        type="static_transform_publisher"
-        args="0.00085 0.000385 -0.017555 0 0 0 1 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" />
-
-    <node name="ar_calib_to_optical_ar_calib" pkg="tf"
-        type="static_transform_publisher"
-        args="0.0 0.0 0.0 0 0 0 1 ar_calib_frame ar_optical_frame 100" />    
-
-
 </launch>
