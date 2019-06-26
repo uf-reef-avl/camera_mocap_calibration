@@ -90,7 +90,7 @@ to
 
     find_package(OPENCV 2.4.8)
 
-  Moreover the user has to configure his rules.d directory ("/lib/udev/rules.d") to let the application access the USB Port. To achieve this, just copy-paste the files : "55-orbbec-usb.rules" and "56-orbbec-usb.rules" located at the root of the calibration package into the rules.d directory. Then reboot the laptop to load the new rules.
+  Moreover the user has to configure his rules.d directory ("/lib/udev/rules.d") to let the application access the USB Port. To achieve this, just copy-paste the files : "55-orbbec-usb.rules" and "56-orbbec-usb.rules" located in the rules folder into the /lib/udev/rules.d directory. Then reboot the laptop to load the new rules.
 
 
 <a name="Intrinsic Calibration"/>
