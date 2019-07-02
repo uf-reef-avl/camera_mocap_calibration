@@ -145,10 +145,12 @@ Intrinsic calibration board:
 
 <a name="Extrinsic Calibration"/>
 ## Extrinsic Calibration
+
 Extrinsic calibration refers to the estimation of the coordinate system transformations used to relate the world coordinate frame to the camera coordinate frame. Extrinsic parameters will consist of both a translation and rotation matrix.
 
 <a name="File setup"/>
 ### Setup
+
 1. Connect the computer that will be running the calibration launch file to **Pathfinder**, and ensure the Motive software is connected with IP **192.168.1.104**.
 
 2. For the extrinsic calibration, two rigid bodies must be created. In motive select the markers of the chosen aruco calibration board (between the big board and the little board as an example), create the rigid body and name it **tf_calib**. Then select the markers which define the camera rigidbody (in this example, it s the quad rigidbody), create the new rigid body and name it **tf_cam**.
@@ -209,6 +211,7 @@ roslaunch calibrate_mocap_and_camera board_moves_w_truth.launch
 
 <a name="Processing Transform Data"/>
 ### Processing Transform Data
+
 The transform data must have outliers/discontinuities removed before being used to calculate extrinsic parameters. This data will be plotted and outliers removed.
 
 A Matlab script will be used to plot transform data and determine outliers. If Matlab is not available, Octave can be used instead.
