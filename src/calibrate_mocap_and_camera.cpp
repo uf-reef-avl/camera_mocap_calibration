@@ -37,7 +37,7 @@ bool validTransform(tf::StampedTransform & transform) {
 		result = false;
 		}
 	return result;
-		
+
     }
 
 void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::TransformStampedConstPtr& ar_calib_pose) {
@@ -95,7 +95,8 @@ void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::Transf
                                queryTime, tf_cam_to_rgb_optical_frame);
     } catch (tf::TransformException ex) {
     }
-    if(validTransform(tf_cam_to_rgb_optical_frame))
+
+		if(validTransform(tf_cam_to_rgb_optical_frame))
     {
       br.sendTransform(tf::StampedTransform(tf_cam_to_rgb_optical_frame,
                                             ros::Time::now(), "tf_cam", "calib_rgb_optical_pose"));
@@ -108,8 +109,8 @@ void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::Transf
     tf::Quaternion calib_rot = tf_cam_to_rgb_optical_frame.getRotation();
     tf::Vector3 calib_translation = tf_cam_to_rgb_optical_frame.getOrigin();
     prior_tf = ar_calib_pose;
-
-    std::cout << "calib_tran = [" << calib_translation.getX() << " "
+    if (itransform.getRotation().getW() != 1.) {
+        std::cout << "calib_tran = [" << calib_translation.getX() << " "
               << calib_translation.getY() << " "
               << calib_translation.getZ() << "] "
               << "calib_quat = ["
@@ -117,8 +118,8 @@ void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::Transf
               << calib_rot.getY() << " "
               << calib_rot.getZ() << " "
               << calib_rot.getW() << "]" << std::endl;
-    if (logdata) {
-        fos << queryTime << ", "
+        if (logdata) {
+            fos << queryTime << ", "
                 << calib_translation.getX() << ", "
                 << calib_translation.getY() << ", "
                 << calib_translation.getZ() << ", "
@@ -147,6 +148,7 @@ void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::Transf
                 << ar_calib_pose->transform.rotation.y << ", "
                 << ar_calib_pose->transform.rotation.z << ", "
                 << ar_calib_pose->transform.rotation.w <<std::endl;
+        }
     }
 }
 
@@ -175,7 +177,7 @@ int main(int argc, char **argv) {
 
     privnh.param<std::string>("tf_cam_topic", tf_camera_marker_topic, "/tf_cam/pose");
     privnh.param<std::string>("tf_calib_topic", tf_calib_marker_topic, "/tf_calib/pose");
-    privnh.param<std::string>("ar_calib_topic", ar_calib_topic, "/ar_single_board/transform");
+    privnh.param<std::string>("ar_calib_topic", ar_calib_topic, "/ar_charuco/transform");
     privnh.param("logdata", _logdata, false);
     privnh.param<std::string>("logfilename", _logfilename, "");
     privnh.param<std::string>("optical_parent", optical_parent, "optitrack");
@@ -190,5 +192,3 @@ int main(int argc, char **argv) {
     ros::spin();
     return 0;
 }
-
-
