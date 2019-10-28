@@ -28,16 +28,6 @@
 
 #include <eigen_conversions/eigen_msg.h>
 
-namespace Eigen {
-
-    void toString(std::string name, Eigen::MatrixXf mat) {
-        static std::string sep = "\n----------------------------------------\n";
-        static int StreamPrecision = 4;
-        static Eigen::IOFormat OctaveFmt(StreamPrecision, 0, ", ", ";\n", "", "", "[", "]");
-        std::cout << sep << name << " = " << mat.format(OctaveFmt) << ";" << sep;
-    }
-}
-
 bool validTransform(tf::StampedTransform & transform) {
 	bool result = true;
 	double normTranslation = transform.getOrigin().x() *transform.getOrigin().x() + transform.getOrigin().y() *transform.getOrigin().y() +transform.getOrigin().z() *transform.getOrigin().z() ;
@@ -47,10 +37,11 @@ bool validTransform(tf::StampedTransform & transform) {
 		result = false;
 		}
 	return result;
-		
+
     }
 
 void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::TransformStampedConstPtr& ar_calib_pose) {
+
     static tf::TransformListener listener;
     static tf::TransformBroadcaster br;
     static geometry_msgs::TransformStampedConstPtr prior_tf;
@@ -62,78 +53,102 @@ void CalibrateMocapAndCamera::ar_calib_pose_Callback(const geometry_msgs::Transf
     tf::StampedTransform tf_cam_to_rgb_optical_frame;
     static bool DEBUG = false;
     if (DEBUG) {
-        ROS_INFO("Looking up transform from frame '%s' to frame '%s'", map_frame_id_str.c_str(),
-                cam_frame_id_str.c_str());
+      ROS_INFO("Looking up transform from frame '%s' to frame '%s'", map_frame_id_str.c_str(),
+               cam_frame_id_str.c_str());
     }
     ros::Time queryTime = ros::Time::now();
     try {
-        listener.waitForTransform(map_frame_id_str, cam_frame_id_str,
-                queryTime, ros::Duration(1));
-        listener.lookupTransform(map_frame_id_str, cam_frame_id_str,
-                queryTime, cam_marker_pose);
-        listener.waitForTransform(map_frame_id_str, calib_frame_id_str,
-                queryTime, ros::Duration(1));
-        listener.lookupTransform(map_frame_id_str, calib_frame_id_str,
-                queryTime, calib_marker_pose);
+      listener.waitForTransform(map_frame_id_str, cam_frame_id_str,
+                                queryTime, ros::Duration(1));
+      listener.lookupTransform(map_frame_id_str, cam_frame_id_str,
+                               queryTime, cam_marker_pose);
+      listener.waitForTransform(map_frame_id_str, calib_frame_id_str,
+                                queryTime, ros::Duration(1));
+      listener.lookupTransform(map_frame_id_str, calib_frame_id_str,
+                               queryTime, calib_marker_pose);
     } catch (tf::TransformException ex) {
-        //ROS_ERROR("%s", ex.what());
-        //        ros::Duration(1.0).sleep();
+      //ROS_ERROR("%s", ex.what());
+      //        ros::Duration(1.0).sleep();
     }
     if (DEBUG) {
-        std::cout << "cam_pose = " << cam_marker_pose.getOrigin().x() << ", " <<
+      std::cout << "cam_pose = " << cam_marker_pose.getOrigin().x() << ", " <<
                 cam_marker_pose.getOrigin().y() << ", " << cam_marker_pose.getOrigin().z() << std::endl;
-        std::cout << "calib_pose = " << calib_marker_pose.getOrigin().x() << ", " <<
+      std::cout << "calib_pose = " << calib_marker_pose.getOrigin().x() << ", " <<
                 calib_marker_pose.getOrigin().y() << ", " << calib_marker_pose.getOrigin().z() << std::endl;
-        std::cout << "ar_pose = " << ar_calib_pose->transform.translation << std::endl;
+      std::cout << "ar_pose = " << ar_calib_pose->transform.translation << std::endl;
     }
     static geometry_msgs::TransformStamped ar_calib_to_camera;
 
     tf::Transform transform;
 
     transform.setOrigin(tf::Vector3(ar_calib_pose->transform.translation.x,
-            ar_calib_pose->transform.translation.y, ar_calib_pose->transform.translation.z));
+                                    ar_calib_pose->transform.translation.y, ar_calib_pose->transform.translation.z));
     transform.setRotation(tf::Quaternion(ar_calib_pose->transform.rotation.x, ar_calib_pose->transform.rotation.y,
-            ar_calib_pose->transform.rotation.z, ar_calib_pose->transform.rotation.w).normalize());
+                                         ar_calib_pose->transform.rotation.z, ar_calib_pose->transform.rotation.w).normalize());
     tf::Transform itransform = transform.inverse();
     br.sendTransform(tf::StampedTransform(itransform,
-            ros::Time::now(), "ar_optical_frame", "rgb_optical_pose"));
+                                          ros::Time::now(), "ar_optical_frame", "rgb_optical_pose"));
     try {
-        listener.waitForTransform(cam_frame_id_str, "rgb_optical_pose",
-                queryTime, ros::Duration(1));
-        listener.lookupTransform(cam_frame_id_str, "rgb_optical_pose",
-                queryTime, tf_cam_to_rgb_optical_frame);
+      listener.waitForTransform(cam_frame_id_str, "rgb_optical_pose",
+                                queryTime, ros::Duration(1));
+      listener.lookupTransform(cam_frame_id_str, "rgb_optical_pose",
+                               queryTime, tf_cam_to_rgb_optical_frame);
     } catch (tf::TransformException ex) {
     }
-	if(validTransform(tf_cam_to_rgb_optical_frame))
-		{
-		    br.sendTransform(tf::StampedTransform(tf_cam_to_rgb_optical_frame,
-			    ros::Time::now(), "tf_cam", "calib_rgb_optical_pose"));
-		}
+
+		if(validTransform(tf_cam_to_rgb_optical_frame))
+    {
+      br.sendTransform(tf::StampedTransform(tf_cam_to_rgb_optical_frame,
+                                            ros::Time::now(), "tf_cam", "calib_rgb_optical_pose"));
+    }
 
     if (DEBUG) {
-        std::cout << "calib_result = " << tf_cam_to_rgb_optical_frame.getOrigin().x() << ", " <<
+      std::cout << "calib_result = " << tf_cam_to_rgb_optical_frame.getOrigin().x() << ", " <<
                 tf_cam_to_rgb_optical_frame.getOrigin().y() << ", " << tf_cam_to_rgb_optical_frame.getOrigin().z() << std::endl;
     }
     tf::Quaternion calib_rot = tf_cam_to_rgb_optical_frame.getRotation();
     tf::Vector3 calib_translation = tf_cam_to_rgb_optical_frame.getOrigin();
     prior_tf = ar_calib_pose;
-
-    std::cout << "calib_tran = [" << calib_translation.getX() << " "
-            << calib_translation.getY() << " "
-            << calib_translation.getZ() << "] "
-            << "calib_quat = ["
-            << calib_rot.getX() << " "
-            << calib_rot.getY() << " "
-            << calib_rot.getZ() << " "
-            << calib_rot.getW() << "]" << std::endl;
-    if (logdata) {
-        fos << calib_translation.getX() << " "
-                << calib_translation.getY() << " "
-                << calib_translation.getZ() << " "
-                << calib_rot.getX() << " "
-                << calib_rot.getY() << " "
-                << calib_rot.getZ() << " "
-                << calib_rot.getW() << std::endl;
+    if (itransform.getRotation().getW() != 1.) {
+        std::cout << "calib_tran = [" << calib_translation.getX() << " "
+              << calib_translation.getY() << " "
+              << calib_translation.getZ() << "] "
+              << "calib_quat = ["
+              << calib_rot.getX() << " "
+              << calib_rot.getY() << " "
+              << calib_rot.getZ() << " "
+              << calib_rot.getW() << "]" << std::endl;
+        if (logdata) {
+            fos << queryTime << ", "
+                << calib_translation.getX() << ", "
+                << calib_translation.getY() << ", "
+                << calib_translation.getZ() << ", "
+                << calib_rot.getX() << ", "
+                << calib_rot.getY() << ", "
+                << calib_rot.getZ() << ", "
+                << calib_rot.getW() << ", "
+                << cam_marker_pose.getOrigin().x() << ", "
+                << cam_marker_pose.getOrigin().y() << ", "
+                << cam_marker_pose.getOrigin().z() << ", "
+                << cam_marker_pose.getRotation().x() << ", "
+                << cam_marker_pose.getRotation().y() << ", "
+                << cam_marker_pose.getRotation().z() << ", "
+                << cam_marker_pose.getRotation().w() << ", "
+                << calib_marker_pose.getOrigin().x() << ", "
+                << calib_marker_pose.getOrigin().y() << ", "
+                << calib_marker_pose.getOrigin().z() << ", "
+                << calib_marker_pose.getRotation().x() << ", "
+                << calib_marker_pose.getRotation().y() << ", "
+                << calib_marker_pose.getRotation().z() << ", "
+                << calib_marker_pose.getRotation().w() << ", "
+                << ar_calib_pose->transform.translation.x << ", "
+                << ar_calib_pose->transform.translation.y << ", "
+                << ar_calib_pose->transform.translation.z << ", "
+                << ar_calib_pose->transform.rotation.x << ", "
+                << ar_calib_pose->transform.rotation.y << ", "
+                << ar_calib_pose->transform.rotation.z << ", "
+                << ar_calib_pose->transform.rotation.w <<std::endl;
+        }
     }
 }
 
@@ -162,7 +177,7 @@ int main(int argc, char **argv) {
 
     privnh.param<std::string>("tf_cam_topic", tf_camera_marker_topic, "/tf_cam/pose");
     privnh.param<std::string>("tf_calib_topic", tf_calib_marker_topic, "/tf_calib/pose");
-    privnh.param<std::string>("ar_calib_topic", ar_calib_topic, "/ar_single_board/transform");
+    privnh.param<std::string>("ar_calib_topic", ar_calib_topic, "/ar_charuco/transform");
     privnh.param("logdata", _logdata, false);
     privnh.param<std::string>("logfilename", _logfilename, "");
     privnh.param<std::string>("optical_parent", optical_parent, "optitrack");
@@ -177,5 +192,3 @@ int main(int argc, char **argv) {
     ros::spin();
     return 0;
 }
-
-
