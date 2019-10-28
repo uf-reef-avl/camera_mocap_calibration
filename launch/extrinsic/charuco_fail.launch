@@ -6,13 +6,14 @@
     <arg name="driver_cv_camera" value="false"/>
     <arg name="driver_openni2" value="false"/>
     <arg name="driver_astra" value="true"/>
+    <arg name="driver_astra_pro" value="false"/>
 
     <arg name="log_calibration_data" default="true" />
     <arg name="calibration_data_filename" default="$(env HOME)/calib_transforms.txt" />
 
     <!-- parameters for bagging topic data to file -->
     <arg name="create_bag" default="true" />
-    <arg name="savefile" default="$(env HOME)/20191015" />
+    <arg name="savefile" default="$(env HOME)/20191010_001.bag" />
 
     <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen"
           if="$(arg driver_usb_cam)">
@@ -29,14 +30,17 @@
 
     <group if="$(arg driver_openni2)">
         <include file="$(find openni2_launch)/launch/openni2.launch"/>
-    <arg name="camera_info" default="file://$(env HOME)/.ros/camera_info/rgb_PS1080_PrimeSense.yaml"/>
     </group>
 
     <group if="$(arg driver_astra)">
-        <include file="$(find astra_launch)/launch/astra_pro.launch"/>
+        <include file="$(find astra_launch)/launch/astra.launch"/>
         <arg name="camera_info" default="file://$(env HOME)/.ros/camera_info/rgb_Astra_Orbbec.yaml"/>
     </group>
 
+    <group if="$(arg driver_astra_pro)">
+        <include file="$(find astra_launch)/launch/astra_pro.launch"/>
+        <arg name="camera_info" default="file://$(env HOME)/.ros/camera_info/rgb_Astra_Orbbec.yaml"/>
+    </group>
 
     <arg name="result_display" default="true"/>
     <arg name="result_autosize" default="true"/>
@@ -48,10 +52,11 @@
 
     <arg name="board_config" default="$(find calibrate_mocap_and_camera)/data/single/pose_calib_00.yml" />
     <arg name="board_frame_id" default="ar_calib_frame" />
+    <!-- <arg name="marker_size" default="0.2032" /> -->
     <arg name="marker_size" default="0.035" />
     <arg name="publish_tf" default="false" />
 
-    <node ns="/" pkg="ar_sys" type="single_board" name="ar_single_board$(arg uid)" output="screen">
+    <node ns="/" pkg="ar_sys" type="charuco" name="ar_charuco$(arg uid)" output="screen">
         <remap from="/camera_info" to="/cv_camera_node/camera_info" if="$(arg driver_cv_camera)"/>
         <remap from="/image" to="/cv_camera_node/image_raw" if="$(arg driver_cv_camera)"/>
         <remap from="/camera_info" to="/usb_cam/camera_info" if="$(arg driver_usb_cam)"/>
@@ -60,6 +65,8 @@
         <remap from="/image" to="/camera/rgb/image_raw" if="$(arg driver_openni2)"/>
         <remap from="/camera_info" to="/camera/rgb/camera_info" if="$(arg driver_astra)"/>
         <remap from="/image" to="/camera/rgb/image_raw" if="$(arg driver_astra)"/>
+        <remap from="/camera_info" to="/camera/rgb/camera_info" if="$(arg driver_astra_pro)"/>
+        <remap from="/image" to="/camera/rgb/image_raw" if="$(arg driver_astra_pro)"/>
 
         <param name="image_is_rectified" type="bool" value="$(arg video_rectified)"/>
         <param name="board_config" type="string" value="$(arg board_config)"/>
@@ -74,7 +81,7 @@
 
     <group if="$(arg result_display)">
         <node ns="/" pkg="image_view" type="image_view" name="image_view$(arg uid)" output="screen">
-            <remap from="image" to="/ar_single_board/result" />
+            <remap from="image" to="/ar_single_board$(arg uid)/result" />
 
             <param name="autosize" type="bool" value="$(arg result_autosize)" />
         </node>
@@ -96,8 +103,8 @@
     <arg name="rviz_config_file" default="calibrate_mocap_and_camera.rviz" />
 
     <arg name="bag_topics"
-         default="/tf $(arg vrpn_tf_calib_marker_topic)/pose $(arg vrpn_tf_cam_marker_topic)/pose /ar_single_board/pose /ar_single_board/transform /ar_single_board/result /camera/rgb/image_raw /camera/rgb/camera_info"/>
-         <!-- minimal topic set for calibration -->
+         default="/tf $(arg vrpn_tf_calib_marker_topic)/ned/pose_stamped $(arg vrpn_tf_cam_marker_topic)/ned/pose_stamped /ar_single_board/pose /ar_single_board/transform /ar_single_board/result /camera/rgb/image_raw /camera/rgb/camera_info"/>
+    <!-- minimal topic set for calibration -->
     <!--
     <arg name="bag_topics"
          default="/tf $(arg vrpn_tf_calib_marker_topic)/pose $(arg vrpn_tf_cam_marker_topic)/pose /ar_single_board/pose /ar_single_board/transform"/>
@@ -110,7 +117,7 @@
           type="ros_vrpn_client" args="__name=$(arg vrpn_tf_cam_marker_topic)/pose _vrpn_server_ip:=$(arg vrpn_server_ip)"
           output="screen" if="$(arg use_optitrack)"/>
 
-    <node pkg="rosbag" type="record" name="rosbag_record_rgbd_odometry"
+    <node pkg="rosbag" type="record" name="record"
           args="record -O $(arg savefile) $(arg bag_topics)"
           if="$(arg create_bag)" />
 
@@ -136,7 +143,7 @@
 -->
     <node name="tf_calib_to_ar_calib" pkg="tf"
         type="static_transform_publisher"
-        args="0.000 0.0000 0.00 1 0 0 0 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" />
+        args="0.000 0.000 0.00 1 0 0 0 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" />
 
     <node name="ar_calib_to_optical_ar_calib" pkg="tf"
         type="static_transform_publisher"

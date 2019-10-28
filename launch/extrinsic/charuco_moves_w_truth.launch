@@ -8,10 +8,10 @@
     <arg name="driver_astra" value="true"/>
 
     <arg name="log_calibration_data" default="true" />
-    <arg name="calibration_data_filename" default="$(env HOME)/calib_transforms.txt" />
+    <arg name="calibration_data_filename" default="calib_transforms.txt" />
 
     <!-- parameters for bagging topic data to file -->
-    <arg name="create_bag" default="true" />
+    <arg name="create_bag" default="false" />
     <arg name="savefile" default="$(env HOME)/20191015" />
 
     <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen"
@@ -51,7 +51,7 @@
     <arg name="marker_size" default="0.035" />
     <arg name="publish_tf" default="false" />
 
-    <node ns="/" pkg="ar_sys" type="single_board" name="ar_single_board$(arg uid)" output="screen">
+    <node ns="/" pkg="ar_sys" type="charuco" name="ar_charuco$(arg uid)" output="screen">
         <remap from="/camera_info" to="/cv_camera_node/camera_info" if="$(arg driver_cv_camera)"/>
         <remap from="/image" to="/cv_camera_node/image_raw" if="$(arg driver_cv_camera)"/>
         <remap from="/camera_info" to="/usb_cam/camera_info" if="$(arg driver_usb_cam)"/>
@@ -70,11 +70,11 @@
         <param name="publish_tf" value="$(arg publish_tf)" />
     </node>
 
-    <node ns="/" pkg="topic_tools" type="relay" name="ar_single_board_relay$(arg uid)" args="/ar_single_board$(arg uid)/transform /arsys_single_board/transform" />
+    <node ns="/" pkg="topic_tools" type="relay" name="ar_charuco_relay$(arg uid)" args="/ar_charuco$(arg uid)/transform /arsys_single_board/transform" />
 
     <group if="$(arg result_display)">
         <node ns="/" pkg="image_view" type="image_view" name="image_view$(arg uid)" output="screen">
-            <remap from="image" to="/ar_single_board/result" />
+            <remap from="image" to="/ar_charuco_board/result" />
 
             <param name="autosize" type="bool" value="$(arg result_autosize)" />
         </node>
@@ -93,10 +93,10 @@
 
     <!-- parameters for real-time rviz visualization -->
     <arg name="path" default="$(find calibrate_mocap_and_camera)" />
-    <arg name="rviz_config_file" default="calibrate_mocap_and_camera.rviz" />
+    <arg name="rviz_config_file" default="calibrate_mocap_and_camera_charuco.rviz" />
 
     <arg name="bag_topics"
-         default="/tf $(arg vrpn_tf_calib_marker_topic)/pose $(arg vrpn_tf_cam_marker_topic)/pose /ar_single_board/pose /ar_single_board/transform /ar_single_board/result /camera/rgb/image_raw /camera/rgb/camera_info"/>
+         default="/tf $(arg vrpn_tf_calib_marker_topic)/pose $(arg vrpn_tf_cam_marker_topic)/pose /ar_charuco/pose /ar_charuco/transform /ar_charuco/result /camera/rgb/image_raw /camera/rgb/camera_info"/>
          <!-- minimal topic set for calibration -->
     <!--
     <arg name="bag_topics"
@@ -123,24 +123,27 @@
 
         <param name="tf_cam_topic" value="$(arg vrpn_tf_cam_marker_topic)/pose"/>
         <param name="tf_calib_topic" value="$(arg vrpn_tf_calib_marker_topic)/pose"/>
-        <param name="ar_calib_topic" value="/ar_single_board/transform"/>
+        <param name="ar_calib_topic" value="/ar_charuco/transform"/>
         <param name="optical_parent" value = "$(arg map_frame)"/>
         <param name="optical_frame" value = "$(arg rgb_optical_frame)"/>
         <param name="logdata" value = "$(arg log_calibration_data)"/>
-        <param name="logfilename" value = "$(arg calibration_data_filename)"/>
+        <param name="logfilename" value = "$(env HOME)/$(arg calibration_data_filename)"/>
     </node>
 <!--
     <node name="optical_to_odom" pkg="tf"
           type="static_transform_publisher"
           args="0.0 0.01 0.01  -0.5 0.5 -0.5 -0.5 $(arg rgb_optical_frame) reefbot_base 100" />
 -->
+    <!-- <node name="tf_calib_to_ar_calib" pkg="tf"
+        type="static_transform_publisher"
+        args="0.000 0.0000 0.00 0. 0 -0.7071068 0.7071068 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" /> -->
     <node name="tf_calib_to_ar_calib" pkg="tf"
         type="static_transform_publisher"
-        args="0.000 0.0000 0.00 1 0 0 0 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" />
+        args="0.000 0.0000 0.00 0. 0 0 1 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" />
 
     <node name="ar_calib_to_optical_ar_calib" pkg="tf"
         type="static_transform_publisher"
-        args="0.0 0.0 0.0 0 0 0 1 ar_calib_frame ar_optical_frame 100" />
+        args="0.0 0.0 0.0 0 0 0. 1 ar_calib_frame ar_optical_frame 100" />
 <!--
     <node name="global_calib" pkg="tf"
           type="static_transform_publisher"
