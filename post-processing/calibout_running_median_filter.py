@@ -94,8 +94,10 @@ inputfile = open(environ["HOME"] + '/calib_transforms.txt', 'r')
 outputfile = open(environ["HOME"] + '/calib_transforms_no_outliers.m', 'w')
 
 strdata = [line.strip("\n").split(" ") for line in inputfile.readlines()[1:-1]]
-data = [[float(value) for value in row] for row in strdata]
+print(strdata)
+data = [[float(value.replace(",", "")) for value in row] for row in strdata]
 
+time_stamp = []
 x = []
 y = []
 z = []
@@ -106,6 +108,7 @@ qw = []
 roll = []
 pitch = []
 yaw = []
+new_time_stamp = time_stamp
 new_x = x
 new_y = y
 new_z= z
@@ -119,17 +122,20 @@ new_qw = qw
 
 
 for row in data:
-    x.append(row[0])
-    y.append(row[1])
-    z.append(row[2])
-    qx.append(row[3])
-    qy.append(row[4])
-    qz.append(row[5])
-    qw.append(row[6])    
+    time_stamp.append(row[0])
+    x.append(row[1])
+    y.append(row[2])
+    z.append(row[3])
+    qx.append(row[4])
+    qy.append(row[5])
+    qz.append(row[6])
+    qw.append(row[7])    
 	
 
-
-    ro,pit,ya = quatertoRPY(row[3],row[4],row[5],row[6])
+    try:
+    	ro,pit,ya = quatertoRPY(row[4],row[5],row[6],row[7])
+    except:
+        pass
     roll.append(ro*180/pi)
     pitch.append(pit*180/pi)
     yaw.append(ya*180/pi)
@@ -341,7 +347,7 @@ outputfile.write("tf_cam_to_rgb_optical_calibration_data=[\n")
 
 for index in range(len(new_x)):
     #quat = RPYtoquaternion(new_yaw[index], new_pitch[index],new_roll[index])
-    outputfile.write(str(new_x[index])+" "+str(new_y[index])+" "+str(new_z[index])+" "+str(new_qx[index])+" "+str(new_qy[index])+" "+str(new_qz[index])+" "+str(new_qw[index])+"\n")
+    outputfile.write(str(time_stamp[index])+" "+str(new_x[index])+" "+str(new_y[index])+" "+str(new_z[index])+" "+str(new_qx[index])+" "+str(new_qy[index])+" "+str(new_qz[index])+" "+str(new_qw[index])+"\n")
 
 outputfile.write("]")
 
