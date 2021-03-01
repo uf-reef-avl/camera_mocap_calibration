@@ -28,11 +28,12 @@ board, visit the
 
     C. [Processing Transform Data](#Processing Transform Data)
 
-5. [Aruco Board Advice] (#Aruco Board Advice)
+5. [Aruco Board Advice](#Aruco Board Advice)
 
-6. [Running Cableless] (#Running Cableless)
+6. [Running Cableless](#Running Cableless)
 
 <a name="Installation"/>
+
 ## Installation
 
 Once your AruCo pattern is generated, and the board is constructed, install the [`calibrate_mocap_and_camera`](http://192.168.1.101/AVL-Summer-18/calibrate_mocap_and_camera_REEF18) package. To do so, create a new workspace or use a catkin_workspace already created and navigate into it:
@@ -94,11 +95,13 @@ to
 
 
 <a name="Intrinsic Calibration"/>
+
 ## Intrinsic Calibration
 
 Intrinsic calibration refers to the estimation of the parameters intrinsic to the camera that affect the imaging process, such as focal length, image center, image sensor format, distortion, and skew.
 
 <a name="Launch Setup"/>
+
 ### Setup
 
 For intrinsic calibration of the RGB camera, run the launch file
@@ -123,6 +126,7 @@ Only RGB intrinsic calibration needs to be performed for extrinsic calibration.
 
 
 <a name="Execution"/>
+
 ### Calibration
 
 Intrinsic calibration board:
@@ -149,6 +153,7 @@ Intrinsic calibration board:
 Extrinsic calibration refers to the estimation of the coordinate system transformations used to relate the world coordinate frame to the camera coordinate frame. Extrinsic parameters will consist of both a translation and rotation matrix.
 
 <a name="File setup"/>
+
 ### Setup
 
 1. Connect the computer that will be running the calibration launch file to **Pathfinder**, and ensure the Motive software is connected with IP **192.168.1.104**.
@@ -196,6 +201,7 @@ Extrinsic calibration refers to the estimation of the coordinate system transfor
 roslaunch calibrate_mocap_and_camera board_moves_w_truth.launch
 ```
 <a name="Calibration"/>
+
 ### Calibration
 
 ![boards orientation](./doc/boards_orientation.png "boards orientation")
@@ -210,6 +216,7 @@ roslaunch calibrate_mocap_and_camera board_moves_w_truth.launch
 
 
 <a name="Processing Transform Data"/>
+
 ### Processing Transform Data
 
 The transform data must have outliers/discontinuities removed before being used to calculate extrinsic parameters. This data will be plotted and outliers removed.
@@ -257,6 +264,7 @@ These python scripts process the result file named **calib_transforms.txt** and 
 
 
 <a name="Aruco Board Advice"/>
+
 ## Aruco Board Advice
 
 The aruco board can be created thanks to the tutorial on the website [UNCC Visionlab wiki](http://visionlab.uncc.edu/dokuwiki/ros_and_camera_calibration). But if you have already an aruko board and do not have the corresponding yaml file, you will have to create this file manually.
@@ -281,6 +289,8 @@ When the **aruco_bc_mInfoType** argument is set to pixel (value = 0), every side
 ![Board Coordinate](./doc/board_coordinate.png "Board Coordinate")
 
 As the yaml file is a dictionary, the order of definition of the aruco markers doesn't really matter but ensure that all the aruco markers have been defined in the yaml file.
+
+<a name="Running Cableless"/>
 
 ## Running Cableless
 
