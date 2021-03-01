@@ -36,7 +36,7 @@ board, visit the
 
 ## Installation
 
-Once your AruCo pattern is generated, and the board is constructed, install the [`calibrate_mocap_and_camera`](http://192.168.1.101/AVL-Summer-18/calibrate_mocap_and_camera_REEF18) package. To do so, create a new workspace or use a catkin_workspace already created and navigate into it:
+Once your AruCo pattern is generated, and the board is constructed, install the [`calibrate_mocap_and_camera`](https://github.com/uf-reef-avl/camera_mocap_calibration) package. To do so, create a new workspace or use a catkin_workspace already created and navigate into it:
 ```
 mkdir **name_of_workspace**
 
@@ -50,7 +50,7 @@ mkdir src
 
 cd src
 
-git clone http://192.168.1.101/AVL-Summer-18/calibrate_mocap_and_camera_REEF18
+git clone https://github.com/uf-reef-avl/camera_mocap_calibration
 ```
 Then compile it at the root of the workspace:
 ```
