@@ -14,23 +14,23 @@ board, visit the
 
 2. [Dependencies](#Dependencies)
 
-3. [Intrinsic Calibration](#Intrinsic Calibration)
+3. [Intrinsic Calibration](#Intrinsic_Calibration)
 
-    A. [Setup](#Launch setup)
+    A. [Setup](#Launch_setup)
 
     B. [Calibration](#Execution)
 
-4. [Extrinsic Calibration](#Extrinsic Calibration)
+4. [Extrinsic Calibration](#Extrinsic_Calibration)
 
-    A. [Setup](#File setup)
+    A. [Setup](#File_setup)
 
     B. [Calibration](#Calibration)
 
-    C. [Processing Transform Data](#Processing Transform Data)
+    C. [Processing Transform Data](#Processing_Transform_Data)
 
-5. [Aruco Board Advice](#Aruco Board Advice)
+5. [Aruco Board Advice](#Aruco_Board_Advice)
 
-6. [Running Cableless](#Running Cableless)
+6. [Running Cableless](#Running_Cableless)
 
 <a name="Installation"/>
 
@@ -94,7 +94,7 @@ to
   Moreover the user has to configure his rules.d directory ("/lib/udev/rules.d") to let the application access the USB Port. To achieve this, just copy-paste the files : "55-orbbec-usb.rules" and "56-orbbec-usb.rules" located in the rules folder into the /lib/udev/rules.d directory. Then reboot the laptop to load the new rules.
 
 
-<a name="Intrinsic Calibration"/>
+<a name="Intrinsic_Calibration"/>
 
 ## Intrinsic Calibration
 
@@ -147,12 +147,12 @@ Intrinsic calibration board:
 4. Click **Save**, a calibration package (.tar.gz) should be created that contains the images used in calibration as well as the intrinsic parameters in the form of a .yaml file.
 5. Click **Commit**, this will save a .yaml file with the intrinsic camera parameters in `~/.ros/camera_info` by default. Check if this file has been correctly generated.
 
-<a name="Extrinsic Calibration"/>
+<a name="Extrinsic_Calibration"/>
 ## Extrinsic Calibration
 
 Extrinsic calibration refers to the estimation of the coordinate system transformations used to relate the world coordinate frame to the camera coordinate frame. Extrinsic parameters will consist of both a translation and rotation matrix.
 
-<a name="File setup"/>
+<a name="File_setup"/>
 
 ### Setup
 
@@ -215,7 +215,7 @@ roslaunch calibrate_mocap_and_camera board_moves_w_truth.launch
 4. Calibration should take ~1-3 minutes. When ample data has been captured, kill the node ("ctrl-c").
 
 
-<a name="Processing Transform Data"/>
+<a name="Processing_Transform_Data"/>
 
 ### Processing Transform Data
 
@@ -263,7 +263,7 @@ These python scripts process the result file named **calib_transforms.txt** and 
     ![Extrinsic Calib Console](./doc/Extrinsic_Calib_Console.png "Extrinsic Calib Console")
 
 
-<a name="Aruco Board Advice"/>
+<a name="Aruco_Board_Advice"/>
 
 ## Aruco Board Advice
 
@@ -290,7 +290,7 @@ When the **aruco_bc_mInfoType** argument is set to pixel (value = 0), every side
 
 As the yaml file is a dictionary, the order of definition of the aruco markers doesn't really matter but ensure that all the aruco markers have been defined in the yaml file.
 
-<a name="Running Cableless"/>
+<a name="Running_Cableless"/>
 
 ## Running Cableless
 
