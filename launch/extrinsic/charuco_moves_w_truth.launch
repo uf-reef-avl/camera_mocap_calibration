@@ -44,16 +44,15 @@
         <arg name="camera_info" default="file://$(env HOME)/.ros/camera_info/rgb_Astra_Orbbec.yaml"/>
     </group>
 
-
     <arg name="result_display" default="true"/>
     <arg name="result_autosize" default="true"/>
     <arg name="result_draw_markers" default="true" />
     <arg name="result_draw_axis" default="true" />
     <arg name="publish_corners" default="false" />
     <arg name="publish_tf" default="true" />
-<!--    Size of the Charuco Square-->
+    <!--    Size of the Charuco Square-->
     <arg name="marker_length" default="0.025" />
-<!--    Size of the checkboard square-->
+    <!--    Size of the checkboard square-->
     <arg name="square_length" default="0.05" />
     <arg name="x_square" default="6" />
     <arg name="y_square" default="4" />
