@@ -1,13 +1,23 @@
 <launch>
     <arg name="driver_openni2" value="false"/>
+    <arg name="driver_astra" value="false"/>
+    <arg name="driver_realsense" value="true"/>
 
     <group if="$(arg driver_openni2)">
         <include file="$(find openni2_launch)/launch/openni2.launch"/>
     </group>
 
-    <group unless="$(arg driver_openni2)">
+    <group if="$(arg driver_astra)">
         <include file="$(find astra_launch)/launch/astra_pro.launch"/>
     </group>
+
+    <group if="$(arg driver_realsense)">
+        <!--        TODO: PAUL update this-->
+        <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
+        <arg name="camera_info" default="file://$(env HOME)/.ros/camera_info/rgb_Astra_Orbbec.yaml"/>
+    </group>
+
+
     <node type="cameracalibrator.py" pkg="camera_calibration"
           args="--size=8x6 --square=0.0245 --no-service-check"
           name="calibration_gui" output="screen">
