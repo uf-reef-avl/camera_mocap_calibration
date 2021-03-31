@@ -136,20 +136,13 @@
 
         <param name="tf_cam_topic" value="$(arg vrpn_tf_cam_marker_topic)/pose"/>
         <param name="tf_calib_topic" value="$(arg vrpn_tf_calib_marker_topic)/pose"/>
-        <param name="ar_calib_topic" value="/ar_charuco/transform"/>
+        <param name="ar_calib_topic" value="/charuco_node/transform"/>
         <param name="optical_parent" value = "$(arg map_frame)"/>
         <param name="optical_frame" value = "$(arg rgb_optical_frame)"/>
         <param name="logdata" value = "$(arg log_calibration_data)"/>
         <param name="logfilename" value = "$(env HOME)/$(arg calibration_data_filename)"/>
     </node>
-<!--
-    <node name="optical_to_odom" pkg="tf"
-          type="static_transform_publisher"
-          args="0.0 0.01 0.01  -0.5 0.5 -0.5 -0.5 $(arg rgb_optical_frame) reefbot_base 100" />
--->
-    <!-- <node name="tf_calib_to_ar_calib" pkg="tf"
-        type="static_transform_publisher"
-        args="0.000 0.0000 0.00 0. 0 -0.7071068 0.7071068 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" /> -->
+
     <node name="tf_calib_to_ar_calib" pkg="tf"
         type="static_transform_publisher"
         args="0.000 0.0000 0.00 0. 0 0 1 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" />
@@ -157,14 +150,5 @@
     <node name="ar_calib_to_optical_ar_calib" pkg="tf"
         type="static_transform_publisher"
         args="0.0 0.0 0.0 0 0 0. 1 ar_calib_frame ar_optical_frame 100" />
-<!--
-    <node name="global_calib" pkg="tf"
-          type="static_transform_publisher"
-          args="0.0 0.0 0.0  0 0 0 1 map tf_calib 100" />
-
-        <node name="global_cam" pkg="tf"
-              type="static_transform_publisher"
-              args="0.0 0.0 0.0  0 0 0 1 map tf_cam 100" />
-    -->
 
 </launch>
