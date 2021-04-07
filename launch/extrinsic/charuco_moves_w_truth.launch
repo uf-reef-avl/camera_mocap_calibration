@@ -5,7 +5,8 @@
     <arg name="driver_usb_cam" value="false"/>
     <arg name="driver_cv_camera" value="false"/>
     <arg name="driver_openni2" value="false"/>
-    <arg name="driver_astra" value="true"/>
+    <arg name="driver_astra" value="false"/>
+    <arg name="driver_realsense" value="true"/>
 
     <arg name="log_calibration_data" default="true" />
     <arg name="calibration_data_filename" default="calib_transforms.txt" />
@@ -37,21 +38,27 @@
         <arg name="camera_info" default="file://$(env HOME)/.ros/camera_info/rgb_Astra_Orbbec.yaml"/>
     </group>
 
+    <group if="$(arg driver_realsense)">
+<!--        TODO: PAUL update this-->
+        <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
+        <arg name="camera_info" default="file://$(env HOME)/.ros/camera_info/rgb_Astra_Orbbec.yaml"/>
+    </group>
 
     <arg name="result_display" default="true"/>
     <arg name="result_autosize" default="true"/>
     <arg name="result_draw_markers" default="true" />
-    <arg name="result_draw_markers_axis" default="true" />
+    <arg name="result_draw_axis" default="true" />
+    <arg name="publish_corners" default="false" />
+    <arg name="publish_tf" default="true" />
+    <!--    Size of the Charuco Square-->
+    <arg name="marker_length" default="0.025" />
+    <!--    Size of the checkboard square-->
+    <arg name="square_length" default="0.05" />
+    <arg name="x_square" default="6" />
+    <arg name="y_square" default="4" />
+    <arg name="num_marker" default="15" />
 
-    <arg name="uid" default=""/>
-    <arg name="video_rectified" default="false" />
-
-    <arg name="board_config" default="$(find calibrate_mocap_and_camera)/data/single/pose_calib_00.yml" />
-    <arg name="board_frame_id" default="ar_calib_frame" />
-    <arg name="marker_size" default="0.035" />
-    <arg name="publish_tf" default="false" />
-
-    <node ns="/" pkg="ar_sys" type="charuco" name="ar_charuco$(arg uid)" output="screen">
+    <node ns="/" pkg="charuco_ros" type="node" name="charuco_node" output="screen">
         <remap from="/camera_info" to="/cv_camera_node/camera_info" if="$(arg driver_cv_camera)"/>
         <remap from="/image" to="/cv_camera_node/image_raw" if="$(arg driver_cv_camera)"/>
         <remap from="/camera_info" to="/usb_cam/camera_info" if="$(arg driver_usb_cam)"/>
@@ -60,14 +67,19 @@
         <remap from="/image" to="/camera/rgb/image_raw" if="$(arg driver_openni2)"/>
         <remap from="/camera_info" to="/camera/rgb/camera_info" if="$(arg driver_astra)"/>
         <remap from="/image" to="/camera/rgb/image_raw" if="$(arg driver_astra)"/>
+        <remap from="/camera_info" to="/camera/color/camera_info" if="$(arg driver_realsense)"/>
+        <remap from="/image" to="/camera/color/image_raw" if="$(arg driver_realsense)"/>
 
-        <param name="image_is_rectified" type="bool" value="$(arg video_rectified)"/>
-        <param name="board_config" type="string" value="$(arg board_config)"/>
-        <param name="board_frame" type="string" value="/$(arg board_frame_id)" />
-        <param name="marker_size" type="double" value="$(arg marker_size)"/>
         <param name="draw_markers" type="bool" value="$(arg result_draw_markers)" />
-        <param name="draw_markers_axis" type="bool" value="$(arg result_draw_markers_axis)" />
+        <param name="draw_axis" type="bool" value="$(arg result_draw_axis)" />
         <param name="publish_tf" value="$(arg publish_tf)" />
+        <param name="publish_corners" value="$(arg publish_corners)" />
+        <param name="marker_length" value="$(arg marker_length)" />
+        <param name="square_length" value="$(arg square_length)" />
+        <param name="x_square" value="$(arg x_square)" />
+        <param name="y_square" value="$(arg y_square)" />
+        <param name="num_marker" value="$(arg num_marker)" />
+        <param name="dictionary_id" value="$(arg dictionary_id)" />
     </node>
 
     <node ns="/" pkg="topic_tools" type="relay" name="ar_charuco_relay$(arg uid)" args="/ar_charuco$(arg uid)/transform /arsys_single_board/transform" />
@@ -123,20 +135,13 @@
 
         <param name="tf_cam_topic" value="$(arg vrpn_tf_cam_marker_topic)/pose"/>
         <param name="tf_calib_topic" value="$(arg vrpn_tf_calib_marker_topic)/pose"/>
-        <param name="ar_calib_topic" value="/ar_charuco/transform"/>
+        <param name="ar_calib_topic" value="/charuco_node/transform"/>
         <param name="optical_parent" value = "$(arg map_frame)"/>
         <param name="optical_frame" value = "$(arg rgb_optical_frame)"/>
         <param name="logdata" value = "$(arg log_calibration_data)"/>
         <param name="logfilename" value = "$(env HOME)/$(arg calibration_data_filename)"/>
     </node>
-<!--
-    <node name="optical_to_odom" pkg="tf"
-          type="static_transform_publisher"
-          args="0.0 0.01 0.01  -0.5 0.5 -0.5 -0.5 $(arg rgb_optical_frame) reefbot_base 100" />
--->
-    <!-- <node name="tf_calib_to_ar_calib" pkg="tf"
-        type="static_transform_publisher"
-        args="0.000 0.0000 0.00 0. 0 -0.7071068 0.7071068 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" /> -->
+
     <node name="tf_calib_to_ar_calib" pkg="tf"
         type="static_transform_publisher"
         args="0.000 0.0000 0.00 0. 0 0 1 $(arg vrpn_tf_calib_marker_topic) ar_calib_frame 100" />
@@ -144,14 +149,5 @@
     <node name="ar_calib_to_optical_ar_calib" pkg="tf"
         type="static_transform_publisher"
         args="0.0 0.0 0.0 0 0 0. 1 ar_calib_frame ar_optical_frame 100" />
-<!--
-    <node name="global_calib" pkg="tf"
-          type="static_transform_publisher"
-          args="0.0 0.0 0.0  0 0 0 1 map tf_calib 100" />
-
-        <node name="global_cam" pkg="tf"
-              type="static_transform_publisher"
-              args="0.0 0.0 0.0  0 0 0 1 map tf_cam 100" />
-    -->
 
 </launch>
