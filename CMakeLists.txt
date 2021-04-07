@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
     tf2 
     tf2_ros
+    tf
 )
 
 ## System dependencies are found with CMake's conventions
