@@ -5,6 +5,7 @@ from collections import deque
 from bisect import insort, bisect_left
 from itertools import islice
 from os import environ
+import numpy as np
 
 import statistics
 
@@ -90,8 +91,13 @@ def running_median(seq, window_size):
 
 pi = math.pi
 
+
+output_nwu_path = environ["HOME"] + '/extrinsec_parameter_nwu.yaml'
+output_ned_path = environ["HOME"] + '/extrinsec_parameter_ned.yaml'
 inputfile = open(environ["HOME"] + '/calib_transforms.txt', 'r')
-outputfile = open(environ["HOME"] + '/calib_transforms_no_outliers.m', 'w')
+outputfile_NWU = open(output_nwu_path, 'w')
+outputfile_NED = open(output_ned_path, 'w')
+
 
 strdata = [line.strip("\n").split(" ") for line in inputfile.readlines()[1:-1]]
 print(strdata)
@@ -141,7 +147,7 @@ for row in data:
     yaw.append(ya*180/pi)
 
 exit = False
-
+save = False
 
 
 
@@ -270,7 +276,7 @@ while(exit != True):
 
     plt.draw()
     
-    userparam = input("Select the parameter you would like to limit (x, y, z, qx, qy, qz, qw, position, orientation, all) or \"exit\" to exit:\n")
+    userparam = input("Select the parameter you would like to limit (x, y, z, qx, qy, qz, qw, position, orientation, all) or \"save\" to save or \"exit\" to exit:\n")
 
     if userparam in ['x', 'y', 'z','qx','qy','qz','qw', 'position','orientation', 'all']:
         movingMedianSize = input("Select the window size of the median filter for " + userparam + " (or return to cancel):\n")
@@ -337,21 +343,32 @@ while(exit != True):
                     new_pitch.append(temp_pitch)
                     new_yaw.append(temp_yaw)
 
+    elif userparam == "save":
+        exit = True
+        save= True
 
     elif userparam == "exit":
         exit = True
     
     else: print("Please enter a valid parameter.\n")
 
-outputfile.write("tf_cam_to_rgb_optical_calibration_data=[\n")
+if save == True:
+    x_average = np.average(np.array([new_x]))
+    y_average = np.average(np.array([new_y]))
+    z_average = np.average(np.array([new_z]))
+    qx_average = np.average(np.array([new_qx]))
+    qy_average = np.average(np.array([new_qy]))
+    qz_average = np.average(np.array([new_qz]))
+    qw_average = np.average(np.array([new_qw]))
+    norm = np.linalg.norm(np.array([qx_average,qy_average,qz_average,qw_average]))
+    qx_average = qx_average / norm
+    qy_average = qy_average / norm
+    qz_average = qz_average / norm
+    qw_average = qw_average / norm
+    outputfile_NWU.write("body_to_camera: { \n qx: "+ str(qx_average) +",\n qy: "+ str(qy_average) +",\n qz: "+ str(qz_average) +",\n qw: "+ str(qw_average) +",\n x: "+ str(x_average) +",\n y: "+ str(y_average) +",\n z: "+ str(z_average) +",\n }")
+    outputfile_NED.write("body_to_camera: { \n qx: " + str(qx_average) + ",\n qy: " + str(-qy_average) + ",\n qz: " + str(-qz_average) + ",\n qw: "+ str(qw_average) +",\n x: " + str(x_average) + ",\n y: " + str(-y_average) + ",\n z: " + str(-z_average) + ",\n }")
+    print("The result have been exported to the files: "+output_nwu_path+" and "+output_nwu_path)
 
-for index in range(len(new_x)):
-    #quat = RPYtoquaternion(new_yaw[index], new_pitch[index],new_roll[index])
-    outputfile.write(str(time_stamp[index])+" "+str(new_x[index])+" "+str(new_y[index])+" "+str(new_z[index])+" "+str(new_qx[index])+" "+str(new_qy[index])+" "+str(new_qz[index])+" "+str(new_qw[index])+"\n")
-
-outputfile.write("]")
-
-print("Changes written to: " + outputfile.name)
-
+outputfile_NWU.close()
+outputfile_NED.close()
 inputfile.close()
-outputfile.close()
