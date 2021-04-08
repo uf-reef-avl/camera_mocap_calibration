@@ -51,12 +51,13 @@
     <arg name="publish_corners" default="false" />
     <arg name="publish_tf" default="true" />
     <!--    Size of the Charuco Square-->
-    <arg name="marker_length" default="0.025" />
+    <arg name="marker_length" default="0.022" />
     <!--    Size of the checkboard square-->
-    <arg name="square_length" default="0.05" />
+    <arg name="square_length" default="0.044" />
     <arg name="x_square" default="6" />
     <arg name="y_square" default="4" />
     <arg name="num_marker" default="15" />
+    <arg name="dictionary_id" default="0" />
 
     <node ns="/" pkg="charuco_ros" type="node" name="charuco_node" output="screen">
         <remap from="/camera_info" to="/cv_camera_node/camera_info" if="$(arg driver_cv_camera)"/>
@@ -81,16 +82,6 @@
         <param name="num_marker" value="$(arg num_marker)" />
         <param name="dictionary_id" value="$(arg dictionary_id)" />
     </node>
-
-    <node ns="/" pkg="topic_tools" type="relay" name="ar_charuco_relay$(arg uid)" args="/ar_charuco$(arg uid)/transform /arsys_single_board/transform" />
-
-    <group if="$(arg result_display)">
-        <node ns="/" pkg="image_view" type="image_view" name="image_view$(arg uid)" output="screen">
-            <remap from="image" to="/ar_charuco_board/result" />
-
-            <param name="autosize" type="bool" value="$(arg result_autosize)" />
-        </node>
-    </group>
 
 
     <arg name="map_frame" default="optitrack" />
