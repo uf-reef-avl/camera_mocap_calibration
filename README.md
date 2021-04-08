@@ -220,50 +220,17 @@ roslaunch calibrate_mocap_and_camera board_moves_w_truth.launch
 ### Processing Transform Data
 
 The transform data must have outliers/discontinuities removed before being used to calculate extrinsic parameters. This data will be plotted and outliers removed.
-
-A Matlab script will be used to plot transform data and determine outliers. If Matlab is not available, Octave can be used instead.
-
-1. Ensure Octave is installed:
-
-        sudo apt-get install octave
-
-2. Edit the previous resulting transforms file (named thanks to the `calibration_data_filename` argument) with any text editor:
-    - replace the first line with:
-          tf_cam_to_rgb_optical_calibration_data = [
-    - add the last line:
-          ]
-    - Save the file as **calib_transforms.m** and copy it in the post-processing directory ("./post_processing") where the **calib_analysis.m** file is located
-
-3. Run the **calib_analysis.m** script:
-
-        octave --persist calib_analysis.m
-
-    Plots for various pose parameters should appear.
-
-4. Investigate these plots and identify discontinuities as shown below.
-
-    ![Extrinsic TF Outlier Example](./doc/Extrinsic_TF_Outlier_Example.png "Extrinsic TF Outlier Example")
-
-5. These discontinuities must be removed in order to achieve optimal extrinsic calibration. Run the python script **calibout_running_median_filter.py** (python3 calibout_running_median_filter.py) to remove these discontinuities thanks to a median filter or the script **caliboutlierremoval.py** (python3 caliboutlierremoval.py) to remove them with defined maximum and minimum thresholds. The user can interact with theses scripts through the terminal. In order to perform this, ensure Python3, pip3 and matplotlib are installed :
+Run the python script **calibout_running_median_filter.py** (python3 calibout_running_median_filter.py) to remove these discontinuities thanks to a median filter. Generally use the **all** option with a median window of 20 and then use the option *save*. The user can interact with theses scripts through the terminal. In order to perform this, ensure Python3, pip3 and matplotlib are installed :
 
         sudo apt-get install python3-pip
         pip3 install matplotlib
+        pip3 install numpy
         sudo apt-get install python3-tk
+
 **Notes**
 These python scripts process the result file named **calib_transforms.txt** and located in the home directory. Ensure that your extrinsic result file has this name and is located in the home directory.   
 
-6. The resulting file will be named **calib_transforms_no_outliers.m** and will be located in the home directory. Copy and rename this file as **calib_transforms.m** in the post-processing directory ("./post_processing"). The old **calib_transforms.m** must be replaced. Then rerun **calib_analysis.m**.
-
-    ![Extrinsic TF Outlier Removed](./doc/Extrinsic_TF_Outlier_Removed.png "Extrinsic TF Outlier Removed")
-
-    The discontinuity should now be removed. Repeat this process for all discontinuities.
-
-7. After removing all discontinuities and running **calib_analysis.m** once more, the extrinsic parameters can be found in the script output in the form of a translation vector and rotation matrix (quaternion).
-
-    ![Extrinsic Calib Console](./doc/Extrinsic_Calib_Console.png "Extrinsic Calib Console")
-
-
-<a name="Aruco_Board_Advice"/>
+The resulting file will be named *extrinsec_parameter_ned.yaml** for the NED frame and *extrinsec_parameter_ned.yaml** for the NWU frame and will be located in the home directory. 
 
 ## Aruco Board Advice
 
