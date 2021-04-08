@@ -220,7 +220,7 @@ roslaunch calibrate_mocap_and_camera board_moves_w_truth.launch
 ### Processing Transform Data
 
 The transform data must have outliers/discontinuities removed before being used to calculate extrinsic parameters. This data will be plotted and outliers removed.
-Run the python script **calibout_running_median_filter.py** (python3 calibout_running_median_filter.py) to remove these discontinuities thanks to a median filter. Generally use the **all** option with a median window of 20 and then use the option *save*. The user can interact with theses scripts through the terminal. In order to perform this, ensure Python3, pip3 and matplotlib are installed :
+Run the python script **calibout_running_median_filter.py** (python3 calibout_running_median_filter.py located in the post-processing directory) to remove these discontinuities thanks to a median filter. Generally use the **all** option with a median window of 20 and then use the option *save*. The user can interact with theses scripts through the terminal. In order to perform this, ensure Python3, pip3 and matplotlib are installed :
 
         sudo apt-get install python3-pip
         pip3 install matplotlib
@@ -228,9 +228,9 @@ Run the python script **calibout_running_median_filter.py** (python3 calibout_ru
         sudo apt-get install python3-tk
 
 **Notes**
-These python scripts process the result file named **calib_transforms.txt** and located in the home directory. Ensure that your extrinsic result file has this name and is located in the home directory.   
+This python script process the result file named **calib_transforms.txt** and located in the home directory. Ensure that your extrinsic result file has this name and is located in the home directory.   
 
-The resulting file will be named *extrinsec_parameter_ned.yaml** for the NED frame and *extrinsec_parameter_ned.yaml** for the NWU frame and will be located in the home directory. 
+The resulting files will be named **extrinsec_parameter_ned.yaml** for the NED frame and **extrinsec_parameter_ned.yaml** for the NWU frame and will be located in the home directory. 
 
 ## Aruco Board Advice
 
