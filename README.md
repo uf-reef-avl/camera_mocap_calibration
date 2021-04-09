@@ -223,8 +223,7 @@ The transform data must have outliers/discontinuities removed before being used 
 Run the python script **calibout_running_median_filter.py** (python3 calibout_running_median_filter.py located in the post-processing directory) to remove these discontinuities thanks to a median filter. Generally use the **all** option with a median window of 20 and then use the option *save*. The user can interact with theses scripts through the terminal. In order to perform this, ensure Python3, pip3 and matplotlib are installed :
 
         sudo apt-get install python3-pip
-        pip3 install matplotlib
-        pip3 install numpy
+        pip3 install matplotlib numpy scipy
         sudo apt-get install python3-tk
 
 **Notes**
