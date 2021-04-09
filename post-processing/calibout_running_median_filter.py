@@ -6,13 +6,12 @@ from bisect import insort, bisect_left
 from itertools import islice
 from os import environ
 import numpy as np
-import scipy.spatial.transform.rotation as rot
+from scipy.spatial.transform import Rotation as R
 
 import statistics
 
 if version_info[0] < 3:
     raise "Must be using Python 3"
-
 
 
 
@@ -28,61 +27,21 @@ def quatertoRPY(x, y, z, w):
 
 
 
-def quaternion2CMatrix(q):
-    """
-    EP2C
-
-        C = EP2C(Q) returns the direction math.cosine
-        matrix in terms of the 4x1 Euler parameter vector
-        Q.  The first element is the non-dimensional Euler
-        parameter, while the remain three elements form
-        the Eulerparameter vector.
-    """
-
-    q0 = q[0];
-    q1 = q[1];
-    q2 = q[2];
-    q3 = q[3];
-
-    C = np.matrix("1. 0. 0.;0. 1. 0.;0. 0. 1.");
-    C[0, 0] = q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3;
-    C[0, 1] = 2 * (q1 * q2 + q0 * q3);
-    C[0, 2] = 2 * (q1 * q3 - q0 * q2);
-    C[1, 0] = 2 * (q1 * q2 - q0 * q3);
-    C[1, 1] = q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3;
-    C[1, 2] = 2 * (q2 * q3 + q0 * q1);
-    C[2, 0] = 2 * (q1 * q3 + q0 * q2);
-    C[2, 1] = 2 * (q2 * q3 - q0 * q1);
-    C[2, 2] = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
-
-    return C;
 
 def nwu_to_ned(x_average,y_average,z_average,qw_average, qx_average, qy_average, qz_average):
-    C_NWU_TO_NED = quaternion2CMatrix([0,1,0,0]) #w,x,y,z
-    C_quaternion = quaternion2CMatrix([qw_average, qx_average, qy_average, qz_average]).transpose()
-    t_nwu_to_ned = np.array(
-        [
-        [C_NWU_TO_NED[0,0],C_NWU_TO_NED[0,1],C_NWU_TO_NED[0,2],0],
-            [C_NWU_TO_NED[1, 0], C_NWU_TO_NED[1, 1], C_NWU_TO_NED[1, 2], 0],
-            [C_NWU_TO_NED[2, 0], C_NWU_TO_NED[2, 1], C_NWU_TO_NED[2, 2], 0],
-          [0,0,0,1]
-        ]
-    )
-    t_quaternion_nwu = np.array(
-        [
-        [C_quaternion[0,0],C_quaternion[0,1],C_quaternion[0,2],x_average],
-            [C_quaternion[1, 0], C_quaternion[1, 1], C_quaternion[1, 2], y_average],
-            [C_quaternion[2, 0], C_quaternion[2, 1], C_quaternion[2, 2], z_average],
-          [0,0,0,1]
-        ]
-    )
-    t_C_NED = np.matmul(t_quaternion_nwu, t_nwu_to_ned)
-    quaternion_NED = rot.Rotation.from_matrix(np.array([
-        [t_C_NED[0,0],t_C_NED[0,1],t_C_NED[0,2]],
-        [t_C_NED[1, 0], t_C_NED[1, 1], t_C_NED[1, 2]],
-        [t_C_NED[2, 0], t_C_NED[2, 1], t_C_NED[2, 2]],
-    ]))
-    return quaternion_NED.as_quat()
+    q_marker_nwu_to_optical = np.array([qx_average,qy_average, qz_average, qw_average])  # x,y,z,w
+    t_marker_nwu_to_optical = np.array([x_average, y_average,z_average]).transpose()
+    R_marker_nwu_to_optical = R.from_quat(
+        q_marker_nwu_to_optical).as_dcm()  # Function says its DCM but its a rotation matrix
+    T_marker_nwu_to_optical = np.column_stack([R_marker_nwu_to_optical, t_marker_nwu_to_optical])
+    T_marker_nwu_to_optical = np.row_stack([T_marker_nwu_to_optical, np.array([0, 0, 0, 1])])
+    R_ned_to_nwu = R.from_quat([1, 0, 0, 0]).as_dcm()  # x,y,z,w
+    t_ned_to_nwu = np.array([0, 0, 0]).transpose()
+    T_nwu_to_ned = np.column_stack([R_ned_to_nwu, t_ned_to_nwu])
+    T_nwu_to_ned = np.row_stack([T_nwu_to_ned, np.array([0, 0, 0, 1])])
+    T_marker_ned_to_optical = np.matmul(T_nwu_to_ned, T_marker_nwu_to_optical)
+    rr = R.from_dcm(T_marker_ned_to_optical[0:3, 0:3])
+    return rr.as_quat()
 
 
 def RPYtoquaternion(yaw, pitch, roll):
@@ -416,9 +375,9 @@ if save == True:
     qy_average = qy_average / norm
     qz_average = qz_average / norm
     qw_average = qw_average / norm
-    outputfile_NWU.write("body_to_camera: { \n qx: "+ str(qx_average) +",\n qy: "+ str(qy_average) +",\n qz: "+ str(qz_average) +",\n qw: "+ str(qw_average) +",\n x: "+ str(x_average) +",\n y: "+ str(y_average) +",\n z: "+ str(z_average) +",\n }")
+    outputfile_NWU.write("body_to_camera: { \n qx: "+ str(qx_average) +",\n qy: "+ str(qy_average) +",\n qz: "+ str(qz_average) +",\n qw: "+ str(qw_average) +",\n tx: "+ str(x_average) +",\n ty: "+ str(y_average) +",\n tz: "+ str(z_average) +",\n }")
     quat_ned = nwu_to_ned(x_average,y_average,z_average,qw_average, qx_average, qy_average, qz_average)
-    outputfile_NED.write("body_to_camera: { \n qx: " + str(quat_ned[0]) + ",\n qy: " + str(quat_ned[1]) + ",\n qz: " + str(quat_ned[2]) + ",\n qw: "+ str(quat_ned[3]) +",\n x: " + str(x_average) + ",\n y: " + str(-y_average) + ",\n z: " + str(-z_average) + ",\n }")
+    outputfile_NED.write("body_to_camera: { \n qx: " + str(quat_ned[0]) + ",\n qy: " + str(quat_ned[1]) + ",\n qz: " + str(quat_ned[2]) + ",\n qw: "+ str(quat_ned[3]) +",\n tx: " + str(x_average) + ",\n ty: " + str(-y_average) + ",\n tz: " + str(-z_average) + ",\n }")
     print("The result have been exported to the files: "+output_nwu_path+" and "+output_nwu_path)
 
 outputfile_NWU.close()
